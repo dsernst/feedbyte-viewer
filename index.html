@@ -7,12 +7,12 @@
   <script src="https://cdn.firebase.com/js/client/2.0.4/firebase.js"></script>
   <meta name="description" content="feedByte">
   <meta name="viewport" content="width=device-width">
-  <link rel="stylesheet" type="text/css" href="../bower_components/bootstrap/dist/css/bootstrap.css">
-  <link rel="stylesheet" type="text/css" href="../bower_components/bluebird/js/browser/bluebird.js">
+  <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.css">
+  <link rel="stylesheet" type="text/css" href="bower_components/bluebird/js/browser/bluebird.js">
   
   
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-  <script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.3.3.min.js"></script>
+  <!-- // <script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.3.3.min.js"></script> -->
   <!-- // <script type="text/javascript" src="iterate.js"></script> -->
   <!-- // <script type="text/javascript" src="loadDataAndStartEventListeners.js"></script> -->
 </head>
@@ -39,54 +39,46 @@
 
   <script type="text/javascript">
   $(function() {
-  
-    // Parse.initialize("oVtdba00w4uiXhxmlujQUM8iu5LJT5jbIvjnErcC", "v1l0JGIDfi0ZEFHWOVz7WIx88QfLTqHD4Ae5bgRK");
-    // var FeedByte = Parse.Object.extend("feedByte");
-    // var Point = Parse.Object.extend("feedByte");
-    // var query = new Parse.Query("feedByte");
-     
-     //defines getData, which kicks off a string of promises
-    var getData = function(className) {
-      return new Promise(function(resolve, reject) {
-        var query = new Parse.Query(className);
-        resolve(query.find());
-      });
-    };
-    //invokes getData with our Parse object
-    var getAndUpdateAllData = function() {
-      //TODO: get the new data from Firebase
-      getData(FeedByte)
 
-      .then(function(results) {
-        var objects = [];
-        //Assumes that each object has the following keys:
-          //id- firebase ID
-          //attributes- contains
-            //User
-            //Content
-            //URL
-            //Dates
-            //Votes
-        //gathering the object attributes and id so we can uniquely identify this object later
-        results.forEach(function(obj) {
-          obj.attributes['firebaseID'] = obj.id;
-          objects.push(obj.attributes);
-        })
-        return objects;
-      //once we have our messages, iterate through them
-      }).then(function(results) {
-        iterate(results);
-      })
-      //once we've attached everything to the DOM, start our event listeners
-      .then(function(results) {
-        eventListeners()
-      });
-    };
-    //invokes immediately upon page load
-    getAndUpdateAllData();
+    var firebase = new Firebase('https://feedbyte.firebaseio.com/');
+    console.log(firebase);
+    firebase.on('child_added', function(snapshot) {
+      console.log('heard a child added!');
+      var message = snapshot.val();
+      formatIssue(message);
+      console.log(message);
+      //we can wipe out all data on the page and then call iterate on the entire dataset
+      //or we can refactor iterate to let it handle just one object.
+    });
+   var counter = 1;
+   var results = [];
+   var tableEntry;
+
+   var formatIssue = function(entry) {
+    tableEntry = "<tr firebaseID=" + entry.firebaseID + "><th scope='row'>" + counter + "</th><td>" + entry.user + "</td><td>" + entry.comment + "</td><td>" + entry.url + "</td><td>" + new Date(entry.timestamp) + "</td><td>" + entry.votes + "</td><td><button type='button' firebaeID=" + entry.firebaseID + ">Click Me!</button></tr>";
+    counter++;
+    $('tbody').append(tableEntry.toString());
+    results.push(tableEntry);
+   };
+
+   //the eventListeners are not hooked up yet. 
     var eventListeners = function() {
+
+      //TODO: this whole section will need to be refactored. 
+      //each piece of data has it's own distinct url. so what we do is create a new firebase object from that url:
+      var thisMessage = new Firebase('https://iuzevgn3xvt.firebaseio-demo.com/');
+      //then set that data to the new value (like +1 vote);
+      thisMessage.set({name: name, text: text});
+
+      firebase.on('child_added', function(snapshot) {
+        var message = snapshot.val();
+        //we can wipe out all data on the page and then call iterate on the entire dataset
+        //or we can refactor iterate to let it handle just one object.
+        displayChatMessage(message.name, message.text);
+      });
+
       $('button').on('click',function() {
-        console.log('heard a click!', $(this).attr('parseID'));
+        console.log('heard a click!', $(this).attr('firebaseID'));
         // the below code is the right pattern to update the vote count without having to retrieve the object first. 
         // however i'm getting a 404 error on this, so i'll try to do it the manual way: getting the object, updating it, and saving it
         var point = new Point();
