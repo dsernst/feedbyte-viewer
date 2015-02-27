@@ -41,21 +41,20 @@
   $(function() {
 
     var firebase = new Firebase('https://feedbyte.firebaseio.com/');
-    console.log(firebase);
     firebase.on('child_added', function(snapshot) {
-      console.log('heard a child added!');
       var message = snapshot.val();
+      message.firebaseID = snapshot.key();
       formatIssue(message);
-      console.log(message);
       //we can wipe out all data on the page and then call iterate on the entire dataset
       //or we can refactor iterate to let it handle just one object.
+      eventListeners();
     });
    var counter = 1;
    var results = [];
    var tableEntry;
 
    var formatIssue = function(entry) {
-    tableEntry = "<tr firebaseID=" + entry.firebaseID + "><th scope='row'>" + counter + "</th><td>" + entry.user + "</td><td>" + entry.comment + "</td><td>" + entry.url + "</td><td>" + new Date(entry.timestamp) + "</td><td>" + entry.votes + "</td><td><button type='button' firebaeID=" + entry.firebaseID + ">Click Me!</button></tr>";
+    tableEntry = "<tr id=" + entry.firebaseID + "><th scope='row'>" + counter + "</th><td>" + entry.user + "</td><td>" + entry.comment + "</td><td>" + entry.url + "</td><td>" + new Date(entry.timestamp) + "</td><td>" + entry.votes + "</td><td><button type='button' id=" + entry.firebaseID + ">Click Me!</button></tr>";
     counter++;
     $('tbody').append(tableEntry.toString());
     results.push(tableEntry);
@@ -64,41 +63,15 @@
    //the eventListeners are not hooked up yet. 
     var eventListeners = function() {
 
-      //TODO: this whole section will need to be refactored. 
-      //each piece of data has it's own distinct url. so what we do is create a new firebase object from that url:
-      var thisMessage = new Firebase('https://iuzevgn3xvt.firebaseio-demo.com/');
-      //then set that data to the new value (like +1 vote);
-      thisMessage.set({name: name, text: text});
-
-      firebase.on('child_added', function(snapshot) {
-        var message = snapshot.val();
-        //we can wipe out all data on the page and then call iterate on the entire dataset
-        //or we can refactor iterate to let it handle just one object.
-        displayChatMessage(message.name, message.text);
-      });
-
       $('button').on('click',function() {
-        console.log('heard a click!', $(this).attr('firebaseID'));
-        // the below code is the right pattern to update the vote count without having to retrieve the object first. 
-        // however i'm getting a 404 error on this, so i'll try to do it the manual way: getting the object, updating it, and saving it
-        var point = new Point();
-        point.id = $(this).attr('parseID');
-        point.fetch() // returns a promise
-        .then(function(){
-          console.log('point',point);
-            point.increment("votes");
-            return point.save(); // returns a promise
-        })
-        .then(function() {
-          //after we've saved the data, update the data displayed in the DOM.
-          //this part is super crude right now- it wipes the whole dom and fetches all the data from the db again. 
-          $('tbody').html('');
-          getAndUpdateAllData();
-        }, function() {
-          console.log('failed to post new vote count');
-        });
+        console.log('heard a click!', $(this).attr('id'));
+        // $(this).parent()
+        //TODO: this whole section will need to be refactored. 
+        //each piece of data has it's own distinct url. so what we do is create a new firebase object from that url:
+        var thisMessage = new Firebase('https://iuzevgn3xvt.firebaseio-demo.com/');
+        //then set that data to the new value (like +1 vote);
       });
-    }
+    };
   });
   </script>
 </body>
