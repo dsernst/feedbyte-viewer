@@ -32,7 +32,17 @@
    </table>
   </div>
 
+
+  <div id="messageDetails">
+    <h2>Details</h2>
+    <div id="message"></message>
+  </div>
+
   <script type="text/javascript">
+  function displayMessage(message) {
+    $('<div/>').text(message.comment).prepend($('<em/>').text(message.user+': ')).appendTo($('#message'));
+  };
+
   $(function() {
 
     var firebase = new Firebase('https://feedbyte.firebaseio.com/');
@@ -46,14 +56,12 @@
       //or we can refactor iterate to let it handle just one object.
     });
    var counter = 1;
-   var results = [];
    var tableEntry;
 
    var formatIssue = function(entry) {
     tableEntry = "<tr firebaseID=" + entry.firebaseID + "><th scope='row'>" + counter + "</th><td>" + entry.user + "</td><td>" + entry.comment + "</td><td>" + entry.url + "</td><td>" + new Date(entry.timestamp) + "</td><td>" + entry.votes + "</td><td><button type='button' firebaeID=" + entry.firebaseID + ">Click Me!</button></tr>";
     counter++;
     $('tbody').append(tableEntry.toString());
-    results.push(tableEntry);
    };
 
    //the eventListeners are not hooked up yet.
