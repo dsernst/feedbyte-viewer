@@ -9,16 +9,16 @@
   <meta name="viewport" content="width=device-width">
   <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.css">
   <link rel="stylesheet" type="text/css" href="bower_components/bluebird/js/browser/bluebird.js">
-  
-  
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+
+
   <!-- // <script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.3.3.min.js"></script> -->
   <!-- // <script type="text/javascript" src="iterate.js"></script> -->
   <!-- // <script type="text/javascript" src="loadDataAndStartEventListeners.js"></script> -->
 </head>
 
 <body>
-  
+
   <div id="main">
     <table class="table table-bordered">
      <thead>
@@ -61,10 +61,10 @@
     results.push(tableEntry);
    };
 
-   //the eventListeners are not hooked up yet. 
+   //the eventListeners are not hooked up yet.
     var eventListeners = function() {
 
-      //TODO: this whole section will need to be refactored. 
+      //TODO: this whole section will need to be refactored.
       //each piece of data has it's own distinct url. so what we do is create a new firebase object from that url:
       var thisMessage = new Firebase('https://iuzevgn3xvt.firebaseio-demo.com/');
       //then set that data to the new value (like +1 vote);
@@ -79,7 +79,7 @@
 
       $('button').on('click',function() {
         console.log('heard a click!', $(this).attr('firebaseID'));
-        // the below code is the right pattern to update the vote count without having to retrieve the object first. 
+        // the below code is the right pattern to update the vote count without having to retrieve the object first.
         // however i'm getting a 404 error on this, so i'll try to do it the manual way: getting the object, updating it, and saving it
         var point = new Point();
         point.id = $(this).attr('parseID');
@@ -91,7 +91,7 @@
         })
         .then(function() {
           //after we've saved the data, update the data displayed in the DOM.
-          //this part is super crude right now- it wipes the whole dom and fetches all the data from the db again. 
+          //this part is super crude right now- it wipes the whole dom and fetches all the data from the db again.
           $('tbody').html('');
           getAndUpdateAllData();
         }, function() {
